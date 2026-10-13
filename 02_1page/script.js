@@ -86,7 +86,7 @@ if (!reduceMotion) {
 
   // 네온 비 + 반짝이는 입자 캔버스
   const canvas = document.getElementById('fx'), ctx = canvas.getContext('2d');
-  const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789:.=*+-<>¦'.split('');
+  const glyphs = ['0', '1'];
   const colors = ['#00f0ff', '#ff2a8a', '#fcee0a'];
   const size = 18;
   let w, h, cols, drops, speeds, stars;
