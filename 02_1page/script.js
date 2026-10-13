@@ -1,12 +1,13 @@
 'use strict';
 // 소유자 정보는 모두 이 데이터에서 관리한다. 기술·프로젝트는 소유자 요청으로 작성한 예시 내용이므로 실제 이력에 맞게 교체할 것.
 const data = {
+  // level: 숙련도 0~100 (예시 값이므로 실제 수준에 맞게 조정할 것)
   skills: [
-    { group: 'LANGUAGES', items: ['SQL', 'Java', 'C#', 'Python', 'JavaScript'] },
-    { group: 'DATABASE', items: ['Oracle', 'MS SQL Server', 'PostgreSQL'] },
-    { group: 'HEALTHCARE', items: ['EMR / OCS', 'HL7', 'FHIR', 'PACS 연동'] },
-    { group: 'WEB', items: ['HTML', 'CSS', 'Spring', 'REST API'] },
-    { group: 'TOOLS', items: ['Git', 'GitHub', 'Vercel', 'Claude Code'] }
+    { group: 'AX / AI', items: [{ name: 'AX (AI Transformation)', level: 80 }, { name: 'AI 활용·프롬프트', level: 85 }, { name: 'Claude Code', level: 85 }] },
+    { group: 'LANGUAGES', items: [{ name: 'SQL', level: 90 }, { name: 'Java', level: 75 }, { name: 'C#', level: 70 }, { name: 'Python', level: 70 }, { name: 'JavaScript', level: 65 }] },
+    { group: 'DATABASE', items: [{ name: 'Oracle', level: 85 }, { name: 'MS SQL Server', level: 80 }, { name: 'PostgreSQL', level: 65 }] },
+    { group: 'HEALTHCARE', items: [{ name: 'EMR / OCS', level: 90 }, { name: 'HL7', level: 75 }, { name: 'FHIR', level: 60 }, { name: 'PACS 연동', level: 65 }] },
+    { group: 'WEB / TOOLS', items: [{ name: 'HTML / CSS', level: 70 }, { name: 'Spring / REST API', level: 70 }, { name: 'Git / GitHub', level: 75 }, { name: 'Vercel', level: 60 }] }
   ],
   projects: [
     { name: '진료 예약·접수 현황 대시보드', desc: '외래 접수와 대기 현황을 실시간으로 보여주는 원무 지원 화면을 개발했습니다.', stack: ['Java', 'Spring', 'Oracle'], link: '' },
@@ -34,9 +35,18 @@ function externalLink(node, href) {
 
 document.getElementById('skill-list').append(...data.skills.map(group => {
   const card = el('div', 'panel');
-  const chips = el('ul', 'chips');
-  chips.append(...group.items.map(item => el('li', '', item)));
-  card.append(el('h3', '', group.group), chips);
+  const rows = el('ul', 'levels');
+  rows.append(...group.items.map(item => {
+    const row = el('li', 'level');
+    const bar = el('span', 'bar'), fill = el('i');
+    fill.style.setProperty('--w', item.level + '%');
+    bar.append(fill);
+    bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', item.name + ' 숙련도 ' + item.level);
+    row.append(el('span', 'name', item.name), bar, el('b', 'num', String(item.level)));
+    return row;
+  }));
+  card.append(el('h3', '', group.group), rows);
   return card;
 }));
 
