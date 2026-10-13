@@ -226,3 +226,7 @@ footer { text-align: center; color: var(--dim); padding: 64px 24px 32px; font-si
 .panel { background: rgba(5, 12, 10, .82); }
 .nav { background: rgba(3, 8, 6, .88); }
 .lead { color: #7dffb0; text-shadow: 0 0 10px rgba(0, 255, 90, .5); }
+
+/* 프로필 모노그램 (사진 대체) */
+.avatar { border: 2px solid var(--cyan); background: radial-gradient(circle, rgba(0, 240, 255, .18), transparent 70%), #050a0c; box-shadow: 0 0 22px rgba(0, 240, 255, .45), inset 0 0 22px rgba(255, 42, 138, .25); }
+.avatar span { font-size: 84px; font-weight: 700; color: var(--cyan); text-shadow: 0 0 16px var(--cyan), 3px 0 var(--pink), -3px 0 var(--yellow); }
