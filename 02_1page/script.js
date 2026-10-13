@@ -3,11 +3,11 @@
 const data = {
   // level: 숙련도 0~100 (예시 값이므로 실제 수준에 맞게 조정할 것)
   skills: [
-    { group: 'AX / AI', items: [{ name: 'AX (AI Transformation)', level: 80 }, { name: 'AI 활용·프롬프트', level: 85 }, { name: 'Claude Code', level: 85 }] },
+    { group: 'AX / AI', items: [{ name: 'AX 전환', level: 80 }, { name: '생성형 AI 활용', level: 85 }, { name: 'Claude Code', level: 85 }] },
     { group: 'LANGUAGES', items: [{ name: 'SQL', level: 90 }, { name: 'Java', level: 75 }, { name: 'C#', level: 70 }, { name: 'Python', level: 70 }, { name: 'JavaScript', level: 65 }] },
     { group: 'DATABASE', items: [{ name: 'Oracle', level: 85 }, { name: 'MS SQL Server', level: 80 }, { name: 'PostgreSQL', level: 65 }] },
     { group: 'HEALTHCARE', items: [{ name: 'EMR / OCS', level: 90 }, { name: 'HL7', level: 75 }, { name: 'FHIR', level: 60 }, { name: 'PACS 연동', level: 65 }] },
-    { group: 'WEB / TOOLS', items: [{ name: 'HTML / CSS', level: 70 }, { name: 'Spring / REST API', level: 70 }, { name: 'Git / GitHub', level: 75 }, { name: 'Vercel', level: 60 }] }
+    { group: 'WEB / TOOLS', items: [{ name: 'HTML / CSS', level: 70 }, { name: 'Spring / API', level: 70 }, { name: 'Git / GitHub', level: 75 }, { name: 'Vercel', level: 60 }] }
   ],
   projects: [
     { name: '진료 예약·접수 현황 대시보드', desc: '외래 접수와 대기 현황을 실시간으로 보여주는 원무 지원 화면을 개발했습니다.', stack: ['Java', 'Spring', 'Oracle'], link: '' },
@@ -34,7 +34,7 @@ function externalLink(node, href) {
 }
 
 document.getElementById('skill-list').append(...data.skills.map(group => {
-  const card = el('div', 'panel');
+  const card = el('div', 'panel skill-card');
   const rows = el('ul', 'levels');
   rows.append(...group.items.map(item => {
     const row = el('li', 'level');
@@ -72,7 +72,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // 스크롤 등장
-const revealTargets = document.querySelectorAll('.block h2, .panel');
+const revealTargets = document.querySelectorAll('.block h2, .panel:not(.skill-card)');
 if (reduceMotion || !('IntersectionObserver' in window)) {
   revealTargets.forEach(node => node.classList.add('reveal', 'in'));
 } else {

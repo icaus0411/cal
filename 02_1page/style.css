@@ -248,3 +248,11 @@ footer { text-align: center; color: var(--dim); padding: 64px 24px 32px; font-si
 .in .level .bar i { width: var(--w); }
 .level .num { color: var(--yellow); text-align: right; text-shadow: 0 0 8px rgba(252, 238, 10, .6); }
 @media (prefers-reduced-motion: reduce) { .level .bar i { width: var(--w); transition: none; } }
+
+/* 숙련도 표시 보정: 항상 보이게, 이름 줄바꿈 방지, 프로젝트 번호 겹침 방지 */
+.skill-card .level .bar i { width: var(--w); animation: fillbar 1.2s cubic-bezier(.2, .8, .2, 1) both; transition: none; }
+@keyframes fillbar { from { width: 0; } }
+.level { grid-template-columns: minmax(96px, 1.3fr) minmax(60px, 1fr) 28px; }
+.level .name { white-space: nowrap; }
+.project h3 { padding-right: 44px; }
+@media (prefers-reduced-motion: reduce) { .skill-card .level .bar i { animation: none; } }
