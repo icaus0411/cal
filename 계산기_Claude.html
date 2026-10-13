@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계산기</title>
+<style>
+  :root {
+    --bg: #eef1f5;
+    --panel: #ffffff;
+    --screen: #1f2933;
+    --screen-text: #f5f7fa;
+    --screen-sub: #9aa5b1;
+    --key: #f5f7fa;
+    --key-text: #1f2933;
+    --op: #dbe7ff;
+    --op-text: #1d4ed8;
+    --fn: #fde2e1;
+    --fn-text: #b42318;
+    --eq: #2563eb;
+    --eq-text: #ffffff;
+    --border: #d9dee5;
+    --muted: #6b7785;
+    --hover: rgba(0, 0, 0, 0.06);
+    --focus: #f59e0b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12161c;
+      --panel: #1b2129;
+      --screen: #0b0e12;
+      --screen-text: #f5f7fa;
+      --screen-sub: #7b8794;
+      --key: #262e38;
+      --key-text: #e4e7eb;
+      --op: #1e3a6e;
+      --op-text: #bcd3ff;
+      --fn: #4a2220;
+      --fn-text: #ffc9c5;
+      --eq: #3b82f6;
+      --eq-text: #ffffff;
+      --border: #2f3843;
+      --muted: #9aa5b1;
+      --hover: rgba(255, 255, 255, 0.07);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--key-text);
+    font-family: "Segoe UI", "Malgun Gothic", system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .app {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    max-width: 760px;
+    align-items: stretch;
+  }
+  .calc, .history {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  }
+  .calc { flex: 0 0 360px; }
+  .history { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
+
+  .screen {
+    background: var(--screen);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    text-align: right;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .expr {
+    color: var(--screen-sub);
+    font-size: 18px;
+    min-height: 26px;
+    word-break: break-all;
+    font-variant-numeric: tabular-nums;
+  }
+  .result {
+    color: var(--screen-text);
+    font-size: 40px;
+    font-weight: 600;
+    min-height: 52px;
+    word-break: break-all;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+  }
+  .result.error { font-size: 22px; color: #ff8a80; }
+
+  .keys {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .keys button {
+    font: inherit;
+    font-size: 22px;
+    height: 60px;
+    border: none;
+    border-radius: 10px;
+    background: var(--key);
+    color: var(--key-text);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.05s;
+  }
+  .keys button::after {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: transparent;
+  }
+  .keys button:hover::after { background: var(--hover); }
+  .keys button:active, .keys button.pressed { transform: scale(0.96); }
+  .keys button:focus-visible, .history button:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .keys .op { background: var(--op); color: var(--op-text); }
+  .keys .fn { background: var(--fn); color: var(--fn-text); }
+  .keys .eq { background: var(--eq); color: var(--eq-text); }
+  .keys .wide { grid-column: span 2; }
+
+  .history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .history-head h2 { font-size: 17px; margin: 0; }
+  .clear-history {
+    font: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .clear-history:hover { color: var(--fn-text); border-color: var(--fn-text); }
+  .history ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    max-height: 440px;
+  }
+  .history li button {
+    width: 100%;
+    text-align: right;
+    font: inherit;
+    background: transparent;
+    color: var(--key-text);
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 8px;
+    cursor: pointer;
+    border-radius: 6px;
+    word-break: break-all;
+  }
+  .history li button:hover { background: var(--hover); }
+  .history .h-expr { display: block; color: var(--muted); font-size: 14px; }
+  .history .h-res { display: block; font-size: 18px; font-weight: 600; }
+  .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 24px 0; }
+
+  @media (max-width: 720px) {
+    .app { flex-direction: column; }
+    .calc { flex: none; }
+    .history ul { max-height: 260px; }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="calc" aria-label="계산기">
+    <div class="screen">
+      <div class="expr" id="expr" aria-live="polite"></div>
+      <div class="result" id="result" aria-live="polite">0</div>
+    </div>
+    <div class="keys">
+      <button class="fn" data-key="C" aria-label="모두 지우기">C</button>
+      <button class="fn" data-key="back" aria-label="한 글자 지우기">←</button>
+      <button class="op" data-key="(" aria-label="여는 괄호">(</button>
+      <button class="op" data-key=")" aria-label="닫는 괄호">)</button>
+
+      <button data-key="7">7</button>
+      <button data-key="8">8</button>
+      <button data-key="9">9</button>
+      <button class="op" data-key="÷" aria-label="나누기">÷</button>
+
+      <button data-key="4">4</button>
+      <button data-key="5">5</button>
+      <button data-key="6">6</button>
+      <button class="op" data-key="×" aria-label="곱하기">×</button>
+
+      <button data-key="1">1</button>
+      <button data-key="2">2</button>
+      <button data-key="3">3</button>
+      <button class="op" data-key="−" aria-label="빼기">−</button>
+
+      <button data-key="0">0</button>
+      <button data-key="." aria-label="소수점">.</button>
+      <button class="eq" data-key="=" aria-label="계산">=</button>
+      <button class="op" data-key="+" aria-label="더하기">+</button>
+    </div>
+  </section>
+
+  <section class="history" aria-label="계산 기록">
+    <div class="history-head">
+      <h2>계산 기록</h2>
+      <button class="clear-history" id="clearHistory">기록 지우기</button>
+    </div>
+    <ul id="historyList"></ul>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var OPS = ["+", "−", "×", "÷"];
+  var STORAGE_KEY = "calculator_history_v1";
+  var MAX_HISTORY = 100;
+  var DIV_ZERO_MSG = "0으로 나눌 수 없습니다";
+
+  var exprEl = document.getElementById("expr");
+  var resultEl = document.getElementById("result");
+  var listEl = document.getElementById("historyList");
+
+  var expr = "";        // 입력 중인 수식 (표시용 기호 × ÷ − 사용)
+  var justEvaluated = false;
+  var lastResult = null;
+  var history = loadHistory();
+
+  // ---------- 수식 계산 (eval 미사용, 재귀 하강 파서) ----------
+  function tokenize(s) {
+    var tokens = [];
+    var i = 0;
+    while (i < s.length) {
+      var c = s[i];
+      if (/[0-9.]/.test(c)) {
+        var j = i;
+        while (j < s.length && /[0-9.]/.test(s[j])) j++;
+        var numStr = s.slice(i, j);
+        if ((numStr.match(/\./g) || []).length > 1 || numStr === ".") throw new Error("syntax");
+        tokens.push({ type: "num", value: parseFloat(numStr) });
+        i = j;
+      } else if (OPS.indexOf(c) >= 0 || c === "(" || c === ")") {
+        tokens.push({ type: c });
+        i++;
+      } else {
+        throw new Error("syntax");
+      }
+    }
+    return tokens;
+  }
+
+  function evaluate(s) {
+    var tokens = tokenize(s);
+    var pos = 0;
+    function peek() { return tokens[pos] ? tokens[pos].type : null; }
+
+    // expression := term (('+' | '−') term)*
+    function parseExpr() {
+      var v = parseTerm();
+      while (peek() === "+" || peek() === "−") {
+        var op = tokens[pos++].type;
+        var r = parseTerm();
+        v = op === "+" ? v + r : v - r;
+      }
+      return v;
+    }
+    // term := factor (('×' | '÷') factor)*   ← 곱셈·나눗셈이 먼저 묶임
+    function parseTerm() {
+      var v = parseFactor();
+      while (peek() === "×" || peek() === "÷") {
+        var op = tokens[pos++].type;
+        var r = parseFactor();
+        if (op === "×") v = v * r;
+        else {
+          if (r === 0) throw new Error("divzero");
+          v = v / r;
+        }
+      }
+      return v;
+    }
+    // factor := ('−' | '+') factor | number | '(' expression ')'
+    function parseFactor() {
+      var t = peek();
+      if (t === "−") { pos++; return -parseFactor(); }
+      if (t === "+") { pos++; return parseFactor(); }
+      if (t === "num") return tokens[pos++].value;
+      if (t === "(") {
+        pos++;
+        var v = parseExpr();
+        if (peek() !== ")") throw new Error("syntax");
+        pos++;
+        return v;
+      }
+      throw new Error("syntax");
+    }
+
+    if (tokens.length === 0) throw new Error("empty");
+    var value = parseExpr();
+    if (pos !== tokens.length) throw new Error("syntax");
+    if (!isFinite(value)) throw new Error("overflow");
+    return value;
+  }
+
+  // 0.1+0.2 → 0.3 처럼 부동소수점 오차 정리 (유효숫자 12자리)
+  function formatNumber(n) {
+    var cleaned = parseFloat(n.toPrecision(12));
+    if (Object.is(cleaned, -0)) cleaned = 0;
+    var abs = Math.abs(cleaned);
+    if (abs !== 0 && (abs >= 1e15 || abs < 1e-9)) {
+      return cleaned.toExponential().replace("-", "−").replace(/e\+?/, "e");
+    }
+    return String(cleaned).replace("-", "−");
+  }
+
+  // 결과 문자열을 다시 수식에 넣을 수 있는 형태로
+  function resultToExpr(n) {
+    var s = String(parseFloat(n.toPrecision(12)));
+    if (/e/i.test(s)) return null; // 지수 표기는 이어서 계산하지 않음
+    return s.replace("-", "−");
+  }
+
+  // ---------- 입력 처리 ----------
+  function lastChar() { return expr.slice(-1); }
+  function isOp(c) { return OPS.indexOf(c) >= 0; }
+
+  // 현재 입력 중인 숫자 조각 (소수점 중복 검사용)
+  function currentNumber() {
+    var m = expr.match(/[0-9.]*$/);
+    return m ? m[0] : "";
+  }
+
+  function openParens() {
+    var n = 0;
+    for (var i = 0; i < expr.length; i++) {
+      if (expr[i] === "(") n++;
+      else if (expr[i] === ")") n--;
+    }
+    return n;
+  }
+
+  function startFresh() {
+    expr = "";
+    justEvaluated = false;
+    resultEl.classList.remove("error");
+  }
+
+  function input(key) {
+    if (key === "C") { startFresh(); lastResult = null; render(); return; }
+    if (key === "back") { backspace(); return; }
+    if (key === "=") { calculate(); return; }
+
+    if (justEvaluated) {
+      // 결과 직후: 연산자면 결과에 이어서, 그 외에는 새 계산
+      var carry = lastResult !== null ? resultToExpr(lastResult) : null;
+      startFresh();
+      if (isOp(key) && carry !== null) {
+        expr = carry;
+      } else if (isOp(key) && key !== "−") {
+        render();
+        return;
+      }
+    }
+
+    var last = lastChar();
+
+    if (/[0-9]/.test(key)) {
+      if (last === ")") expr += "×";
+      // 숫자 맨 앞의 불필요한 0 정리 (예: 05 → 5)
+      if (currentNumber() === "0") expr = expr.slice(0, -1);
+      expr += key;
+    } else if (key === ".") {
+      if (currentNumber().indexOf(".") >= 0) return;
+      if (last === ")") expr += "×";
+      if (currentNumber() === "") expr += "0";
+      expr += ".";
+    } else if (isOp(key)) {
+      if (expr === "" || last === "(") {
+        // 맨 앞이나 괄호 바로 뒤에는 음수 부호만 허용
+        if (key === "−") expr += "−";
+        else return;
+      } else if (isOp(last)) {
+        // 연산자를 연속으로 누르면 마지막 연산자로 교체
+        var before = expr.slice(0, -1);
+        if (before === "" || before.slice(-1) === "(") {
+          if (key === "−") return;
+          expr = before; // "(−" 뒤에 + × ÷ 를 누르면 부호 취소
+          return render();
+        }
+        expr = before + key;
+      } else {
+        if (last === ".") expr += "0";
+        expr += key;
+      }
+    } else if (key === "(") {
+      if (last === "." ) expr += "0";
+      if (/[0-9)]/.test(lastChar())) expr += "×";
+      expr += "(";
+    } else if (key === ")") {
+      if (openParens() <= 0) return;
+      if (last === "(" || isOp(last)) return;
+      if (last === ".") expr += "0";
+      expr += ")";
+    }
+    resultEl.classList.remove("error");
+    render();
+  }
+
+  function backspace() {
+    if (justEvaluated) { startFresh(); render(); return; }
+    expr = expr.slice(0, -1);
+    resultEl.classList.remove("error");
+    render();
+  }
+
+  function calculate() {
+    if (expr === "" || justEvaluated) return;
+    var full = expr;
+    // 마지막이 연산자면 무시, 닫히지 않은 괄호는 자동으로 닫기
+    while (isOp(full.slice(-1)) || full.slice(-1) === "(") full = full.slice(0, -1);
+    if (full === "") return;
+    if (full.slice(-1) === ".") full += "0";
+    var open = 0;
+    for (var i = 0; i < full.length; i++) {
+      if (full[i] === "(") open++; else if (full[i] === ")") open--;
+    }
+    while (open-- > 0) full += ")";
+
+    try {
+      var value = evaluate(full);
+      var shown = formatNumber(value);
+      exprEl.textContent = full + " =";
+      resultEl.textContent = shown;
+      resultEl.classList.remove("error");
+      lastResult = value;
+      addHistory(full, shown);
+    } catch (e) {
+      exprEl.textContent = full + " =";
+      resultEl.textContent = e.message === "divzero" ? DIV_ZERO_MSG
+                           : e.message === "overflow" ? "계산 범위를 벗어났습니다"
+                           : "수식이 올바르지 않습니다";
+      resultEl.classList.add("error");
+      lastResult = null;
+    }
+    expr = full;
+    justEvaluated = true;
+  }
+
+  // 입력 중에는 아래 줄에 미리보기 결과 표시
+  function render() {
+    exprEl.textContent = expr;
+    if (expr === "") { resultEl.textContent = "0"; return; }
+    try {
+      var preview = expr;
+      while (isOp(preview.slice(-1)) || preview.slice(-1) === "(") preview = preview.slice(0, -1);
+      if (preview.slice(-1) === ".") preview += "0";
+      var open = 0;
+      for (var i = 0; i < preview.length; i++) {
+        if (preview[i] === "(") open++; else if (preview[i] === ")") open--;
+      }
+      while (open-- > 0) preview += ")";
+      resultEl.textContent = preview === "" ? "0" : formatNumber(evaluate(preview));
+    } catch (e) {
+      // 입력 중 0으로 나누기 등은 = 를 눌렀을 때 안내
+      if (!resultEl.classList.contains("error")) resultEl.textContent = "";
+    }
+  }
+
+  // ---------- 계산 기록 (localStorage) ----------
+  function loadHistory() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      var data = raw ? JSON.parse(raw) : [];
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveHistory() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch (e) { /* 저장 불가 환경 */ }
+  }
+
+  function addHistory(exprText, resultText) {
+    history.unshift({ expr: exprText, result: resultText });
+    if (history.length > MAX_HISTORY) history.length = MAX_HISTORY;
+    saveHistory();
+    renderHistory();
+  }
+
+  function renderHistory() {
+    listEl.innerHTML = "";
+    if (history.length === 0) {
+      var empty = document.createElement("li");
+      empty.className = "empty";
+      empty.textContent = "아직 계산 기록이 없습니다";
+      listEl.appendChild(empty);
+      return;
+    }
+    history.forEach(function (item) {
+      var li = document.createElement("li");
+      var btn = document.createElement("button");
+      btn.title = "이 수식 다시 불러오기";
+      var e = document.createElement("span");
+      e.className = "h-expr";
+      e.textContent = item.expr + " =";
+      var r = document.createElement("span");
+      r.className = "h-res";
+      r.textContent = item.result;
+      btn.appendChild(e);
+      btn.appendChild(r);
+      btn.addEventListener("click", function () {
+        startFresh();
+        expr = item.expr;
+        render();
+      });
+      li.appendChild(btn);
+      listEl.appendChild(li);
+    });
+  }
+
+  document.getElementById("clearHistory").addEventListener("click", function () {
+    history = [];
+    saveHistory();
+    renderHistory();
+  });
+
+  // ---------- 버튼 / 키보드 ----------
+  document.querySelector(".keys").addEventListener("click", function (ev) {
+    var btn = ev.target.closest("button");
+    if (btn) input(btn.getAttribute("data-key"));
+  });
+
+  var KEYMAP = {
+    "+": "+", "-": "−", "*": "×", "x": "×", "X": "×", "/": "÷",
+    "(": "(", ")": ")", ".": ".", ",": ".",
+    "Enter": "=", "=": "=", "Backspace": "back", "Escape": "C", "Delete": "C"
+  };
+
+  document.addEventListener("keydown", function (ev) {
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    var key = /^[0-9]$/.test(ev.key) ? ev.key : KEYMAP[ev.key];
+    if (!key) return;
+    ev.preventDefault(); // Enter가 포커스된 버튼을 한 번 더 누르지 않도록
+    input(key);
+    var btn = document.querySelector('.keys button[data-key="' + key + '"]');
+    if (btn) {
+      btn.classList.add("pressed");
+      setTimeout(function () { btn.classList.remove("pressed"); }, 100);
+    }
+  });
+
+  renderHistory();
+  render();
+})();
+</script>
+</body>
+</html>
