@@ -2,9 +2,9 @@
 // 소유자 정보는 모두 이 데이터에서 관리한다. [ ] 로 표시된 값은 실제 내용으로 교체할 것.
 const data = {
   skills: [
-    { group: 'LANGUAGES', items: ['[언어 1]', '[언어 2]', '[언어 3]'] },
-    { group: 'FRAMEWORKS', items: ['[프레임워크 1]', '[프레임워크 2]'] },
-    { group: 'TOOLS', items: ['Git', '[도구 1]', '[도구 2]'] }
+    { group: 'WEB', items: ['HTML', 'CSS', 'JavaScript'] },
+    { group: 'TOOLS', items: ['Git', 'GitHub', 'Vercel'] },
+    { group: 'AI', items: ['Claude Code'] }
   ],
   projects: [
     { name: '[프로젝트 이름 1]', desc: '[프로젝트 설명을 한 줄로 적어 주세요]', stack: ['[기술]', '[기술]'], link: '' },
