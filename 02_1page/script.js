@@ -85,15 +85,17 @@ if (!reduceMotion) {
 
   // 네온 비 + 반짝이는 입자 캔버스
   const canvas = document.getElementById('fx'), ctx = canvas.getContext('2d');
-  const glyphs = '01ABCDEF<>/{}[]$#%&*+=ｱｲｳｴｵｶｷｸｹｺ'.split('');
+  const glyphs = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ0123456789:.=*+-<>¦'.split('');
   const colors = ['#00f0ff', '#ff2a8a', '#fcee0a'];
-  let w, h, cols, drops, stars;
+  const size = 18;
+  let w, h, cols, drops, speeds, stars;
   function resize() {
     w = canvas.width = innerWidth; h = canvas.height = innerHeight;
-    cols = Math.ceil(w / 22);
-    drops = Array.from({ length: cols }, () => Math.random() * -50);
-    stars = Array.from({ length: Math.min(90, Math.floor(w / 14)) }, () => ({
-      x: Math.random() * w, y: Math.random() * h, r: Math.random() * 1.8 + .4,
+    cols = Math.ceil(w / size);
+    drops = Array.from({ length: cols }, () => Math.random() * -h / size);
+    speeds = Array.from({ length: cols }, () => .5 + Math.random() * 1.1);
+    stars = Array.from({ length: Math.min(40, Math.floor(w / 30)) }, () => ({
+      x: Math.random() * w, y: Math.random() * h, r: Math.random() * 1.5 + .4,
       p: Math.random() * 6.28, c: colors[Math.floor(Math.random() * 3)]
     }));
   }
@@ -101,19 +103,26 @@ if (!reduceMotion) {
   let last = 0;
   function frame(t) {
     requestAnimationFrame(frame);
-    if (t - last < 60) return;
+    if (t - last < 50) return;
     last = t;
-    ctx.fillStyle = 'rgba(7, 6, 15, .16)'; ctx.fillRect(0, 0, w, h);
-    ctx.font = '16px monospace';
+    ctx.fillStyle = 'rgba(2, 8, 4, .1)'; ctx.fillRect(0, 0, w, h);
+    ctx.font = size + 'px monospace';
     for (let i = 0; i < cols; i++) {
-      if (i % 3 !== 0) continue;
-      ctx.fillStyle = i % 9 === 0 ? 'rgba(255, 42, 138, .55)' : 'rgba(0, 240, 255, .45)';
-      ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], i * 22, drops[i] * 22);
-      if (drops[i] * 22 > h && Math.random() > .975) drops[i] = 0;
-      drops[i]++;
+      const x = i * size, y = drops[i] * size;
+      const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+      // 꼬리: 어두운 매트릭스 초록, 머리: 밝은 흰빛 초록
+      ctx.fillStyle = 'rgba(0, 255, 90, .55)';
+      ctx.shadowColor = '#00ff5a'; ctx.shadowBlur = 6;
+      ctx.fillText(glyphs[Math.floor(Math.random() * glyphs.length)], x, y - size);
+      ctx.fillStyle = '#d8ffe4'; ctx.shadowBlur = 12;
+      ctx.fillText(ch, x, y);
+      if (y > h && Math.random() > .975) { drops[i] = 0; speeds[i] = .5 + Math.random() * 1.1; }
+      drops[i] += speeds[i];
     }
+    ctx.shadowBlur = 0;
+    // 사이버펑크 포인트: 가끔 반짝이는 시안/핑크/옐로 입자
     stars.forEach(s => {
-      const a = .35 + .65 * Math.abs(Math.sin(t / 500 + s.p));
+      const a = .2 + .8 * Math.abs(Math.sin(t / 500 + s.p));
       ctx.globalAlpha = a; ctx.fillStyle = s.c; ctx.shadowColor = s.c; ctx.shadowBlur = 10;
       ctx.fillRect(s.x, s.y, s.r * 2, s.r * 2);
     });

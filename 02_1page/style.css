@@ -214,3 +214,15 @@ footer { text-align: center; color: var(--dim); padding: 64px 24px 32px; font-si
   .hero h1, .logo, .btn, .panel::before, .block h2::after, .btn::after { animation: none; }
   .reveal { opacity: 1; transform: none; filter: none; transition: none; }
 }
+
+/* ===== 매트릭스 톤 보정: 초록 비가 보이도록 배경을 투명하게, 어둡게 ===== */
+.bg-grid {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 42, 138, .12), transparent 55%),
+    radial-gradient(ellipse at 90% 30%, rgba(0, 240, 255, .1), transparent 50%),
+    linear-gradient(rgba(0, 255, 90, .04) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, rgba(0, 255, 90, .04) 1px, transparent 1px) 0 0 / 48px 48px;
+}
+.panel { background: rgba(5, 12, 10, .82); }
+.nav { background: rgba(3, 8, 6, .88); }
+.lead { color: #7dffb0; text-shadow: 0 0 10px rgba(0, 255, 90, .5); }
