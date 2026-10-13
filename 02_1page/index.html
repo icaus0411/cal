@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우동원 | 개발자 포트폴리오</title>
+<meta name="description" content="[한 줄 소개] - 개발자 우동원의 포트폴리오">
+<meta property="og:title" content="우동원 | 개발자 포트폴리오">
+<meta property="og:description" content="[한 줄 소개]">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#about">본문으로 건너뛰기</a>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="logo" href="#top">&gt;_ 우동원</a>
+  <nav aria-label="주요 메뉴">
+    <a href="#about">소개</a>
+    <a href="#skills">기술</a>
+    <a href="#projects">프로젝트</a>
+    <a href="#contact">연락처</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <p class="tag">// SYSTEM ONLINE</p>
+    <h1 class="glitch" data-text="우동원">우동원</h1>
+    <p class="role"><span id="typed" data-text="[직무]">[직무]</span> <span class="cursor" aria-hidden="true">█</span></p>
+    <p class="lead">[한 줄 소개를 여기에 적어 주세요]</p>
+    <div class="cta">
+      <a class="btn" href="#projects">프로젝트 보기</a>
+      <a class="btn alt" href="#contact">연락하기</a>
+    </div>
+  </section>
+
+  <section id="about" class="block">
+    <h2><span>01</span> 소개</h2>
+    <div class="panel about">
+      <div class="avatar" role="img" aria-label="프로필 사진 자리">PHOTO<br>[사진]</div>
+      <div>
+        <p>[자기소개를 여기에 적어 주세요. 어떤 개발자인지, 무엇에 관심이 있는지 2~3문장으로 씁니다.]</p>
+        <dl class="facts">
+          <div><dt>BORN</dt><dd>1990</dd></div>
+          <div><dt>ROLE</dt><dd>[직무]</dd></div>
+          <div><dt>BASE</dt><dd>[지역]</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="block">
+    <h2><span>02</span> 기술 스택</h2>
+    <div id="skill-list" class="skills"></div>
+  </section>
+
+  <section id="projects" class="block">
+    <h2><span>03</span> 프로젝트</h2>
+    <div id="project-list" class="projects"></div>
+  </section>
+
+  <section id="contact" class="block">
+    <h2><span>04</span> 연락처</h2>
+    <div class="panel contact">
+      <p>함께 일할 기회나 협업 제안은 언제든 환영합니다.</p>
+      <ul id="contact-list"></ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>© <span id="year"></span> 우동원. All systems nominal.</p>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
