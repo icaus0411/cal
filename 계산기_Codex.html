@@ -14,6 +14,7 @@
 <p class="intro">괄호와 사칙연산을 이용해 계산하세요.</p>
 <div class="layout">
 <section class="panel" aria-label="계산기">
+<fieldset style="border:1px solid #3b4d68;border-radius:10px;margin:0 0 16px;padding:12px"><legend>계산 모드</legend><label style="margin-right:16px"><input type="radio" name="mode" value="single" checked> 기본</label><label><input type="radio" name="mode" value="steps"> 중간 계산 기록</label><p id="mode-hint" class="hint">계산 후 연산자를 누르면 결과에 이어서 계산합니다.</p></fieldset>
 <div class="display"><div class="label">수식</div><div id="expression" class="expression" aria-live="polite">0</div><div class="label">결과</div><div id="result" class="result" role="status" aria-live="polite">0</div></div>
 <div class="keys">
 <button class="clear" data-action="clear" aria-label="모두 지우기">C</button><button data-value="(">(</button><button data-value=")">)</button><button data-action="delete" aria-label="한 글자 지우기">←</button>
@@ -67,6 +68,15 @@ const historyEl = document.getElementById('history');
 const noticeEl = document.getElementById('storage-notice');
 const storageKey = 'codex-calculator-history-v1';
 let expression = '', result = '0', completed = false, history = [];
+let mode = 'single';
+document.querySelectorAll('input[name="mode"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    mode = radio.value;
+    document.getElementById('mode-hint').textContent = mode === 'steps'
+      ? '= 또는 Enter마다 중간 결과를 기록합니다. 연산자로 기존 수식을 이어 쓰세요. 새 계산은 C를 누르세요.'
+      : '계산 후 연산자를 누르면 결과에 이어서 계산합니다.';
+  });
+});
 function pretty(value) { return value.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−'); }
 function storageWarning() { noticeEl.hidden = false; noticeEl.textContent = '이 브라우저에서는 기록을 저장할 수 없습니다. 현재 창에서만 기록이 유지됩니다.'; }
 try {
@@ -86,8 +96,10 @@ function renderHistory() {
   });
 }
 function input(value) {
-  if (expression.length >= 500 && !completed) { result = '수식은 500자까지 입력할 수 있습니다'; resultEl.classList.add('error'); render(); return; }
-  if (completed) expression = /^[+*/-]$/.test(value) ? result : '';
+  let nextExpression = expression;
+  if (completed) nextExpression = /^[+*/-]$/.test(value) ? (mode === 'steps' ? expression : result) : '';
+  if (nextExpression.length + value.length > 500) { result = '수식은 500자까지 입력할 수 있습니다'; completed = false; resultEl.classList.add('error'); render(); return; }
+  expression = nextExpression;
   completed = false; resultEl.classList.remove('error'); expression += value; render();
 }
 function action(name) {
@@ -105,6 +117,7 @@ document.querySelector('.keys').addEventListener('click', event => { const butto
 document.getElementById('clear-history').addEventListener('click', () => { history = []; saveHistory(); renderHistory(); });
 document.addEventListener('keydown', event => {
   if (event.ctrlKey || event.metaKey || event.altKey) return;
+  if (event.target && event.target.matches('input, select, textarea')) return;
   if (/^[0-9.+*/()\-]$/.test(event.key)) { event.preventDefault(); input(event.key); }
   else if (event.key === 'Enter' || event.key === '=') { event.preventDefault(); action('calculate'); }
   else if (event.key === 'Backspace') { event.preventDefault(); action('delete'); }
