@@ -14,7 +14,7 @@ const data = {
     { name: '진료 통계 자동 리포트', desc: '수작업이던 월간 진료 통계를 쿼리와 스크립트로 자동화했습니다.', stack: ['SQL', 'Python', 'PostgreSQL'], link: '' }
   ],
   contacts: [
-    { label: 'EMAIL', text: 'icarus0411@chabio.com', href: 'mailto:icarus0411@chabio.com' },
+    { label: 'EMAIL', text: 'abcde@chabio.com', href: 'mailto:abcde@chabio.com' },
     { label: 'GITHUB', text: 'github.com/icaus0411', href: 'https://github.com/icaus0411' }
   ]
 };
